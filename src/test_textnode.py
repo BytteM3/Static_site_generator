@@ -1,5 +1,6 @@
 import unittest
 from textnode import TextNode, TextType, text_node_to_html_node
+from textsplit import split_nodes_delimiter
 
 
 class TestTextNode(unittest.TestCase):
@@ -44,6 +45,65 @@ class TestTextNode(unittest.TestCase):
         self.assertEqual(html_node.value, "")
         self.assertEqual(html_node.props["src"], "image.jpg")
         self.assertEqual(html_node.props["alt"], "alt text")
+
+    def test_delimiter_split_bold(self):
+        nodes = [
+            TextNode("I have a lot of text and **some of it** is bold", TextType.PLAIN),
+            TextNode("I have none of the bold text", TextType.PLAIN),
+            TextNode("Im very bold", TextType.BOLD)
+        ]
+        processed = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+        self.assertEqual(
+            processed,
+            [TextNode("I have a lot of text and ", TextType.PLAIN),
+             TextNode("some of it", TextType.BOLD),
+             TextNode(" is bold", TextType.PLAIN),
+             TextNode("I have none of the bold text", TextType.PLAIN),
+             TextNode("Im very bold", TextType.BOLD)
+             ]
+        )
+    def test_delimiter_split_italic(self):
+        nodes = [
+            TextNode("I have a lot of text and _some of it_ is italic", TextType.PLAIN),
+            TextNode("I have none of the italic text", TextType.PLAIN),
+            TextNode("Im so italic its stupid", TextType.ITALIC)
+        ]
+        processed = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
+        self.assertEqual(
+            processed,
+            [TextNode("I have a lot of text and ", TextType.PLAIN),
+             TextNode("some of it", TextType.ITALIC),
+             TextNode(" is italic", TextType.PLAIN),
+             TextNode("I have none of the italic text", TextType.PLAIN),
+             TextNode("Im so italic its stupid", TextType.ITALIC)
+             ]
+        )
+    
+    def test_delimiter_split_code(self):
+        nodes = [
+            TextNode("I have a lot of text and `some of it` is code", TextType.PLAIN),
+            TextNode("I have none of the code", TextType.PLAIN),
+            TextNode("Im all code", TextType.CODE)
+        ]
+        processed = split_nodes_delimiter(nodes, "`", TextType.CODE)
+        self.assertEqual(
+            processed,
+            [TextNode("I have a lot of text and ", TextType.PLAIN),
+             TextNode("some of it", TextType.CODE),
+             TextNode(" is code", TextType.PLAIN),
+             TextNode("I have none of the code", TextType.PLAIN),
+             TextNode("Im all code", TextType.CODE)
+             ]
+        )
+    
+    def test_delimiter_exception(self):
+        nodes = [
+            TextNode("I have a lot of text and `some of it is code", TextType.PLAIN),
+            TextNode("I have none of the code", TextType.PLAIN),
+            TextNode("Im all code", TextType.CODE)
+        ]
+        with self.assertRaises(Exception):
+            split_nodes_delimiter(nodes, "`", TextType.CODE)
 
 
 if __name__ == "__main__":
