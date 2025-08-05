@@ -1,6 +1,6 @@
 import unittest
 from textnode import TextNode, TextType, text_node_to_html_node
-from textsplit import split_nodes_delimiter
+from textsplit import split_nodes_delimiter, split_nodes_link, split_nodes_image
 
 
 class TestTextNode(unittest.TestCase):
@@ -105,6 +105,40 @@ class TestTextNode(unittest.TestCase):
         with self.assertRaises(Exception):
             split_nodes_delimiter(nodes, "`", TextType.CODE)
 
+    def test_split_images(self):
+        node = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+            TextType.PLAIN,
+        )
+        new_nodes = split_nodes_image([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text with an ", TextType.PLAIN),
+                TextNode("image", TextType.IMG, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode(" and another ", TextType.PLAIN),
+                TextNode(
+                    "second image", TextType.IMG, "https://i.imgur.com/3elNhQu.png"
+                ),
+            ],
+            new_nodes,
+        )
 
+    def test_split_links(self):
+        node = TextNode(
+            "This is text with a [serious link](https://importantbussiness.com/huge) and another [second link](https://trivialstuff.com/nonsense)",
+            TextType.PLAIN,
+        )
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("This is text with a ", TextType.PLAIN),
+                TextNode("serious link", TextType.LINK, "https://importantbussiness.com/huge"),
+                TextNode(" and another ", TextType.PLAIN),
+                TextNode(
+                    "second link", TextType.LINK, "https://trivialstuff.com/nonsense"
+                ),
+            ],
+            new_nodes,
+        )
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,5 @@
 from textnode import TextNode, TextType
-from htmlnode import HTMLNode
+from extract_markdown import extract_markdown_images, extract_markdown_links
 
 
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
@@ -22,3 +22,53 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             else:
                 new_nodes.append(node)
     return new_nodes
+
+def split_nodes_image(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type == TextType.PLAIN:
+            split_result = node_slice_img(node.text)
+            new_nodes.extend(split_result)
+        else:
+            new_nodes.append(node)
+    return new_nodes
+
+def node_slice_img(text):
+    img_props = extract_markdown_images(text)
+    if not img_props:
+        return [TextNode(text, TextType.PLAIN)]
+    else:
+        result = []
+        delimiter = f"![{img_props[0][0]}]({img_props[0][1]})"
+        sections = text.split(delimiter, 1)
+        if sections[0]:
+            result.append(TextNode(sections[0], TextType.PLAIN))
+        result.append(TextNode(img_props[0][0], TextType.IMG, img_props[0][1]))
+        if sections[1]:
+            result.extend(node_slice_img(sections[1]))
+    return result
+
+def split_nodes_link(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type == TextType.PLAIN:
+            split_result = node_slice_link(node.text)
+            new_nodes.extend(split_result)
+        else:
+            new_nodes.append(node)
+    return new_nodes
+
+def node_slice_link(text):
+    link_props = extract_markdown_links(text)
+    if not link_props:
+        return [TextNode(text, TextType.PLAIN)]
+    else:
+        result = []
+        delimiter = f"[{link_props[0][0]}]({link_props[0][1]})"
+        sections = text.split(delimiter, 1)
+        if sections[0]:
+            result.append(TextNode(sections[0], TextType.PLAIN))
+        result.append(TextNode(link_props[0][0], TextType.LINK, link_props[0][1]))
+        if sections[1]:
+            result.extend(node_slice_link(sections[1]))
+    return result
