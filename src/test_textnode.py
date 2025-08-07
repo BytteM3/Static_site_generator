@@ -1,6 +1,6 @@
 import unittest
 from textnode import TextNode, TextType, text_node_to_html_node
-from textsplit import split_nodes_delimiter, split_nodes_link, split_nodes_image
+from textsplit import split_nodes_delimiter, split_nodes_link, split_nodes_image, text_to_textnodes
 
 
 class TestTextNode(unittest.TestCase):
@@ -139,6 +139,16 @@ class TestTextNode(unittest.TestCase):
                 ),
             ],
             new_nodes,
+        )
+
+    def test_text_to_textnodes(self):
+        text = "Some **markdown** text that _has_ ![everything](https://i.imgur.com/everything.png) and more [link](https://evenmore.com)"
+        new_nodes = text_to_textnodes(text)
+        self.assertEqual(
+            [TextNode("Some ", TextType.PLAIN), TextNode("markdown", TextType.BOLD), TextNode(" text that ", TextType.PLAIN),
+            TextNode("has", TextType.ITALIC), TextNode(" ", TextType.PLAIN), TextNode("everything", TextType.IMG, "https://i.imgur.com/everything.png"),
+            TextNode(" and more ", TextType.PLAIN), TextNode("link", TextType.LINK, "https://evenmore.com")],
+            new_nodes
         )
 if __name__ == "__main__":
     unittest.main()

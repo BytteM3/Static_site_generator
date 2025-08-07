@@ -72,3 +72,12 @@ def node_slice_link(text):
         if sections[1]:
             result.extend(node_slice_link(sections[1]))
     return result
+
+def text_to_textnodes(text):
+    result = [TextNode(text, TextType.PLAIN)]
+    result = split_nodes_delimiter(result, "**", TextType.BOLD)
+    result = split_nodes_delimiter(result, "_", TextType.ITALIC)
+    result = split_nodes_delimiter(result, "`", TextType.CODE)
+    result = split_nodes_image(result)
+    result = split_nodes_link(result)
+    return result
