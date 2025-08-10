@@ -1,5 +1,5 @@
 import unittest
-from extract_markdown import extract_markdown_images, extract_markdown_links
+from extract_markdown import extract_markdown_images, extract_markdown_links, extract_title
 from blocktype import markdown_to_blocks
 
 class TestMarkdownExtraction(unittest.TestCase):
@@ -56,3 +56,21 @@ This is the same paragraph on a new line
                 "- This is a list\n- with items",
             ],
         )
+
+    def test_extract_title(self):
+        md = """
+# Cool Title  
+
+some nice text here
+"""
+        title = extract_title(md)
+        self.assertEqual(title, "Cool Title")
+
+    def test_extract_title_error(self):
+        md = """
+## Wrong Title
+
+some wrong text
+"""
+        with self.assertRaises(Exception):
+            extract_title(md)

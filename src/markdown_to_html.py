@@ -53,5 +53,8 @@ def block_to_htmlnode(block, block_type):
 
 def text_to_children(text):
     text_nodes = text_to_textnodes(text)
-    html_nodes = [text_node_to_html_node(node) for node in text_nodes]
+    html_nodes = []
+    for node in text_nodes:
+        if node.text is not None and node.text != "":
+            html_nodes.append(text_node_to_html_node(node))
     return html_nodes

@@ -13,6 +13,8 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                 if len(split_nodes) % 2 == 0:
                     raise Exception("delimiter not closed!")
                 for i in range(len(split_nodes)):
+                    if split_nodes[i] == "":
+                        continue
                     if i % 2 == 0:
                         plain_node = TextNode(split_nodes[i], TextType.PLAIN)
                         new_nodes.append(plain_node)
