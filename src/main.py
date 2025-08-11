@@ -1,6 +1,7 @@
 import os
 import shutil
 from gencontent import generate_pages_recursive
+import sys
 
 
 def main_copy_func(source, target):
@@ -27,10 +28,14 @@ def recursive_copy(source, target):
                 
 def main():
     print("Starting main function...")
-    main_copy_func("static", "public")
+    if len(sys.argv) < 2:
+        basepath = "/"
+    else:
+        basepath = sys.argv[1]
+    main_copy_func("static", "docs")
     with open("template.html", "r") as f:
         template = f.read()
-    generate_pages_recursive("content", template, "public")
+    generate_pages_recursive("content", template, "docs", basepath)
 
 if __name__ == "__main__":
     main()
